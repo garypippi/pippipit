@@ -1,0 +1,242 @@
+# pippipit - example configuration
+#
+# Location: $XDG_CONFIG_HOME/pippipit/config.toml
+#           (or ~/.config/pippipit/config.toml when that is unset)
+#
+# Without the file, every setting falls back to its default. Every value below
+# is the default, so copying this file whole changes nothing.
+#
+# An unknown key is an error, so a typo is never silently ignored.
+
+[general]
+tick_ms         = 1000   # clock update interval
+sensor_tick_ms  = 5000   # temperature interval (reads /sys directly, so it is cheap)
+network_tick_ms = 5000   # network interval (spawns ip / wpa_cli)
+history_len     = 60     # samples kept for the sparklines
+                         # this is also the ceiling on how wide one can draw: the
+                         # network sparkline takes the columns the pane has left, but
+                         # never more samples than are kept. At network_tick_ms = 5000
+                         # that is 60 x 5s = 5 minutes of history
+layout          = "auto" # auto | 2-pane | 2-pane-narrow | 1-pane | bar
+                         # auto picks 2-pane from 130x18, 2-pane-narrow from 130x12,
+                         # 1-pane from 6 rows, and bar below that
+
+[clock]
+format          = "%H:%M:%S"
+date_format     = "%Y-%m-%d"   # drawn in the reading colour
+weekday_format  = "%a"         # drawn dim beside it, as furniture; "" leaves it out
+style           = "block"      # block (three-line glyphs, 27 columns) | plain (one line)
+
+[input]
+mouse = true             # false restores the terminal's own text selection,
+                         # at the cost of every click. --no-mouse does the same
+click_workspace = true   # clicking a workspace cell switches to it
+
+[audio]
+sink       = "@DEFAULT_SINK@"  # the name passed on writes; match your Hyprland keybinds
+source     = "@DEFAULT_SOURCE@"  # the same, for the microphone
+step       = 1                 # percent per wheel notch
+max_volume = 150               # ceiling a click or the wheel can reach
+poll_ms    = 10000             # low-frequency safety poll; 0 leaves only the signal
+
+[signals]
+# calloop cannot handle real-time signals (SIGRTMIN+n), so only usr1 / usr2 exist.
+# Appending `; pkill -USR1 -x pippipit` to a volume keybind makes it update instantly.
+audio       = "usr1"
+refresh_all = "usr2"
+
+[workspaces]
+# Workspaces 1..=count are always drawn, even before Hyprland creates them
+# (it only reports the ones that exist). Ids beyond count are still shown
+# while they exist, so a pinned workspace 10 never disappears.
+# The cell width follows the widest id in the row: a two-digit id widens them all.
+count = 8
+# What is sent to Hyprland's socket after `dispatch ` when a cell is clicked;
+# {id} becomes the workspace id. The default is upstream Hyprland's syntax.
+switch = "workspace {id}"
+
+[sensors]
+columns   = 2     # columns in the temperature grid
+max       = 12    # anything past this becomes "+N more"
+hide_zero = true  # hide anything reporting exactly 0.0°C (such as an unconnected header)
+
+# Threshold fallbacks. A sensor with _crit / _max in sysfs uses those instead.
+# Resolution order: an explicit [[sensors.entry]] > sysfs _crit/_max > _crit*0.85 > here
+warn = 75
+crit = 90
+
+# What gets a sparkline.
+# A "<hwmon>/<label>" key picks exactly that row. A group name picks only the FIRST
+# row of the group - the one carrying the heading - so a group of three sensors gets
+# one trend, not three. Write the key instead to pin it elsewhere, e.g.
+# sparkline = ["CPU", "amdgpu/junction"] to watch the GPU hotspot rather than the edge.
+sparkline = ["CPU", "GPU"]
+
+# The order the groups appear in. A group not listed here goes last.
+group_order = ["CPU", "GPU", "WiFi", "NVMe", "MB"]
+
+# Overrides mapping a sensor key to the label shown for it, taking priority over the
+# built-in table. A trailing * matches by prefix.
+# Built in: k10temp/Tctl -> Package, k10temp/Tccd* -> Die, coretemp/Package* -> Package,
+#           amdgpu/edge -> Edge, amdgpu/junction -> Hotspot, amdgpu/mem -> VRAM,
+#           nvme/Composite -> Drive, mt7921*/iwlwifi* -> Adapter
+# Anything the table does not know keeps the raw sysfs label: a guess that renames a
+# sensor into something it is not is worse than the raw name.
+# The KEY stays raw either way - it is what entry / sparkline / label_map all match on.
+# [sensors.label_map]
+# "amdgpu/junction" = "Die"
+# "nvme/Sensor*"    = "Drive"
+
+# Overrides mapping an hwmon chip name to a group name, taking priority over the
+# built-in table.
+# Built in: k10temp/coretemp/zenpower -> CPU, amdgpu/nouveau/i915 -> GPU,
+#           nvme -> NVMe, asusec/asus_ec_sensors/nct6775 -> MB,
+#           mt7921*/iwlwifi* -> WiFi, anything else keeps its chip name
+#
+# A trailing * matches by prefix. An exact match wins over a prefix match, and
+# between two prefixes the longer one wins.
+#
+# [sensors.group_map]
+# "nct6799" = "MB"
+# "acpitz*" = "System"
+
+# Explicit order, labels and thresholds.
+# Leave the section out entirely to scan automatically and sort by group_order.
+#
+# The key is "<hwmon name>/<temp label>", not a path: the hwmon numbers change
+# from boot to boot, so a path must never be written here.
+#
+# [[sensors.entry]]
+# key   = "k10temp/Tctl"
+# group = "CPU"
+# label = "Tctl"
+# warn  = 85
+# crit  = 95
+
+[mpris]
+# The players to target. Empty means automatic detection.
+# List them in priority order (they reach `playerctl -p` that way). The names are
+# the ones `playerctl -l` prints.
+players = []
+
+# There is deliberately no display format setting: the title, artist and seek bar
+# have their columns computed and fixed, so an arbitrary format string would break
+# the frame.
+
+[art]
+# Album art from mpris, drawn by Überzug++ at the left of the volume and track rows.
+# cmus gives no art over mpris, so its cover is taken out of the playing file with
+# ffmpeg, or else is the cover.jpg / folder.jpg / front.jpg beside it.
+# Needs the 2-pane layout. While it is on, those rows move over for the frame even
+# when the track has no art.
+#
+# On Wayland every image is a window of its own. On Hyprland, Überzug++ lays it over
+# whichever window was active when Überzug++ started, so pippipit only starts it
+# while its own window is the active one. Each image opens on the focused workspace:
+# give titles starting with ueberzugpp_ a window rule that floats them, keeps focus
+# off them and sends them silently to the pane's workspace.
+enabled = false
+# Überzug++'s --output. wayland works in a terminal without an image protocol.
+output = "wayland"
+# How long an https cover may take to download, in milliseconds.
+download_timeout_ms = 5000
+# With output = "wayland", pippipit puts the image window over its frame itself,
+# since Überzug++ misplaces it on a fractional scale. This is what follows
+# `dispatch `: {x} {y} are layout coordinates, {address} is the window's.
+move = "movewindowpixel exact {x} {y},address:{address}"
+# Sent once the window has been moved, {address} as above; empty sends nothing.
+# Überzug++ shows the image before pippipit can move it. A window rule that opens
+# ueberzugpp_ windows transparent hides that, and this makes the moved one visible.
+# The window never has focus, so it is the inactive opacity that counts.
+show = ""
+
+[network]
+# Narrow the display to exactly these interfaces. Empty means automatic detection,
+# filtered by exclude below. A trailing * matches by prefix.
+interface = []
+
+# Interfaces to exclude. A trailing * matches by prefix.
+# dummy0 / sit0 are operstate=down, so hide_operstate already removes them.
+# This is the knob for a machine that never wants to see something: add docker0 or
+# veth* here and they are gone. Everything else is shown by default.
+exclude = ["lo"]
+
+# Interfaces that sort last. A trailing * matches by prefix.
+# This is a priority, not a filter: a match still gets its rows, it just yields the
+# top of the pane to the real hardware. The pane is four rows and a WiFi interface is
+# three of them, so without this a couple of veth* push the WiFi off the bottom.
+# Whatever does not fit is named on the last row, and the wheel scrolls the pane.
+# Take wg0 out of this list if you count it as real hardware.
+virtual = ["docker*", "veth*", "br-*", "virbr*", "tun*", "tap*", "wg*"]
+
+# Interfaces in these operstates are hidden.
+# Never add dormant: it is the state during wpa authentication right after boot,
+# and hiding it makes the network rows vanish entirely, leaving no way to tell
+# connecting from broken.
+hide_operstate = ["down", "lowerlayerdown", "notpresent"]
+
+[commands]
+# The names of the external commands. A name on PATH or an absolute path both work.
+pactl     = "pactl"      # must support -f json
+playerctl = "playerctl"
+ueberzugpp = "ueberzugpp" # album art
+curl      = "curl"       # album art that is not a local file
+cmus_remote = "cmus-remote" # which file cmus is playing, for its album art
+ffmpeg    = "ffmpeg"     # album art embedded in a song file
+wpa_cli   = "wpa_cli"
+ip        = "ip"         # must support -j
+
+# How long before a command is cut off, in milliseconds.
+# A safety net so an unresponsive wpa_cli cannot freeze the whole TUI.
+timeout_ms = 1500
+# Suspend can hold the process until resume, so power commands get longer.
+power_timeout_ms = 20000
+# Hyprland's socket.
+hyprland_timeout_ms = 1000
+
+[power]
+# Screen off. The default is the upstream Hyprland spelling.
+screen_off = ["hyprctl", "dispatch", "dpms", "off"]
+
+# loginctl works under both systemd and elogind.
+suspend    = ["loginctl", "suspend"]
+poweroff   = ["loginctl", "poweroff"]
+
+confirm_screen_off = false  # only screen off may skip the confirmation
+                            # Suspend / Power Off cannot skip it, not even here
+
+# How long to wait before running the command.
+# Never set this to 0: the release event of an Enter press or a click would cancel
+# the suspend or DPMS the instant it took effect.
+delay_ms = 1000
+
+[theme]
+accent    = "cyan"      # a colour name, "#rrggbb", or a 0-255 index
+text      = "gray"
+dim       = "darkgray"
+warn      = "yellow"
+crit      = "red"
+border    = "darkgray"
+# The temperature and network trends. Unset, they follow accent.
+# sparkline = "blue"
+nerd_font = true
+
+# How many sides of the outer frame are drawn.
+#   "full" - all four sides.
+#   "top"  - the top rule only, which is where the date sits. The sides and the
+#            bottom rule go, and the panes get the row and the two columns back.
+#            Worth it under a compositor that already draws a border around the
+#            window: with "top" the two-pane layout fits in 17 rows, not 18.
+frame = "full"
+
+# Colours for one block, each falling back to the [theme] value above.
+# Blocks: clock (with the date), workspaces, audio, media, sensors, network, power.
+# Keys: accent, text, dim, warn, crit, sparkline. border stays shared, since the
+# frame belongs to every block. Setting a block's accent recolours its trend too,
+# unless a sparkline colour is set here or in [theme].
+#
+# [theme.clock]
+# accent = "#ebcb8b"
+#
+# [theme.sensors]
+# sparkline = "#bf616a"

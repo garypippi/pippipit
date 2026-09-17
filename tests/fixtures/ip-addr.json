@@ -1,0 +1,131 @@
+[
+ {
+  "ifindex": 1,
+  "ifname": "lo",
+  "flags": [
+   "LOOPBACK",
+   "UP",
+   "LOWER_UP"
+  ],
+  "mtu": 65536,
+  "qdisc": "noqueue",
+  "operstate": "UNKNOWN",
+  "group": "default",
+  "txqlen": 1000,
+  "link_type": "loopback",
+  "address": "00:11:22:33:44:55",
+  "broadcast": "ff:ff:ff:ff:ff:ff",
+  "addr_info": [
+   {
+    "family": "inet",
+    "local": "127.0.0.1",
+    "prefixlen": 8,
+    "broadcast": "127.255.255.255",
+    "scope": "host",
+    "label": "lo",
+    "valid_life_time": 4294967295,
+    "preferred_life_time": 4294967295
+   },
+   {
+    "family": "inet6",
+    "local": "::1",
+    "prefixlen": 128,
+    "scope": "host",
+    "protocol": "kernel_lo",
+    "valid_life_time": 4294967295,
+    "preferred_life_time": 4294967295
+   }
+  ],
+  "altnames": []
+ },
+ {
+  "ifindex": 2,
+  "ifname": "dummy0",
+  "flags": [
+   "BROADCAST",
+   "NOARP"
+  ],
+  "mtu": 1500,
+  "qdisc": "noop",
+  "operstate": "DOWN",
+  "group": "default",
+  "txqlen": 1000,
+  "link_type": "ether",
+  "address": "00:11:22:33:44:55",
+  "broadcast": "ff:ff:ff:ff:ff:ff",
+  "addr_info": [],
+  "altnames": []
+ },
+ {
+  "ifindex": 3,
+  "link": null,
+  "ifname": "sit0",
+  "flags": [
+   "NOARP"
+  ],
+  "mtu": 1480,
+  "qdisc": "noop",
+  "operstate": "DOWN",
+  "group": "default",
+  "txqlen": 1000,
+  "link_type": "sit",
+  "address": "0.0.0.0",
+  "broadcast": "0.0.0.0",
+  "addr_info": [],
+  "altnames": []
+ },
+ {
+  "ifindex": 4,
+  "ifname": "wlan0",
+  "flags": [
+   "BROADCAST",
+   "MULTICAST",
+   "UP",
+   "LOWER_UP"
+  ],
+  "mtu": 1500,
+  "qdisc": "noqueue",
+  "operstate": "UP",
+  "group": "default",
+  "txqlen": 1000,
+  "link_type": "ether",
+  "address": "00:11:22:33:44:55",
+  "broadcast": "ff:ff:ff:ff:ff:ff",
+  "altnames": [
+   "anon"
+  ],
+  "addr_info": [
+   {
+    "family": "inet",
+    "local": "192.168.1.10",
+    "prefixlen": 24,
+    "broadcast": "192.168.1.255",
+    "scope": "global",
+    "dynamic": true,
+    "noprefixroute": true,
+    "label": "wlan0",
+    "valid_life_time": 165542,
+    "preferred_life_time": 143942
+   },
+   {
+    "family": "inet6",
+    "local": "2001:db8::1",
+    "prefixlen": 64,
+    "scope": "global",
+    "mngtmpaddr": true,
+    "noprefixroute": true,
+    "valid_life_time": 4294967295,
+    "preferred_life_time": 4294967295
+   },
+   {
+    "family": "inet6",
+    "local": "fe80::211:22ff:fe33:4455",
+    "prefixlen": 64,
+    "scope": "link",
+    "protocol": "kernel_ll",
+    "valid_life_time": 4294967295,
+    "preferred_life_time": 4294967295
+   }
+  ]
+ }
+]

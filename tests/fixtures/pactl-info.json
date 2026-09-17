@@ -1,0 +1,17 @@
+{
+ "server_string": "/run/user/1000/pulse/native",
+ "library_protocol_version": 35,
+ "server_protocol_version": 35,
+ "is_local": "yes",
+ "client_index": 180,
+ "tile_size": "65472",
+ "user_name": "user",
+ "host_name": "localhost",
+ "server_name": "PulseAudio (on PipeWire 1.6.7)",
+ "server_version": "15.0.0",
+ "default_sample_specification": "float32le 2ch 48000Hz",
+ "default_channel_map": "front-left,front-right",
+ "default_sink_name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+ "default_source_name": "alsa_input.usb-Acme_Webcam_Mic-02.analog-stereo",
+ "cookie": "0000:0000"
+}

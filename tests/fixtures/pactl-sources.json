@@ -1,0 +1,282 @@
+[
+ {
+  "index": 53,
+  "state": "SUSPENDED",
+  "name": "alsa_output.pci-0000_00_1f.3.hdmi-stereo.monitor",
+  "description": "Monitor of GPU HDMI/DP Audio Digital Stereo (HDMI)",
+  "driver": "PipeWire",
+  "sample_specification": "s16le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 65536,
+   "value_percent": "100%",
+   "db": "0.00 dB"
+  },
+  "monitor_source": "alsa_output.pci-0000_00_1f.3.hdmi-stereo",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "hdmi-output-0"
+ },
+ {
+  "index": 64,
+  "state": "SUSPENDED",
+  "name": "alsa_input.usb-Acme_Webcam_Mic-02.analog-stereo",
+  "description": "Webcam Microphone Analog Stereo",
+  "driver": "PipeWire",
+  "sample_specification": "s16le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 35466,
+   "value_percent": "54%",
+   "db": "-16.00 dB"
+  },
+  "monitor_source": "",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "analog-input-mic"
+ },
+ {
+  "index": 65,
+  "state": "SUSPENDED",
+  "name": "alsa_input.usb-Acme_Studio_Mic-00.analog-stereo",
+  "description": "Studio Microphone Analog Stereo",
+  "driver": "PipeWire",
+  "sample_specification": "s24le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 61680,
+    "value_percent": "94%",
+    "db": "-1.58 dB"
+   },
+   "front-right": {
+    "value": 61680,
+    "value_percent": "94%",
+    "db": "-1.58 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 55142,
+   "value_percent": "84%",
+   "db": "-4.50 dB"
+  },
+  "monitor_source": "",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "analog-input-mic"
+ },
+ {
+  "index": 66,
+  "state": "SUSPENDED",
+  "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink.monitor",
+  "description": "Monitor of USB Audio S/PDIF Output",
+  "driver": "PipeWire",
+  "sample_specification": "s24le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 65536,
+   "value_percent": "100%",
+   "db": "0.00 dB"
+  },
+  "monitor_source": "alsa_output.usb-Generic_USB_Audio-00.HiFi__SPDIF__sink",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "[Out] SPDIF"
+ },
+ {
+  "index": 67,
+  "state": "RUNNING",
+  "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink.monitor",
+  "description": "Monitor of USB Audio Speakers",
+  "driver": "PipeWire",
+  "sample_specification": "s32le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 65536,
+   "value_percent": "100%",
+   "db": "0.00 dB"
+  },
+  "monitor_source": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Speaker__sink",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "[Out] Speaker"
+ },
+ {
+  "index": 68,
+  "state": "SUSPENDED",
+  "name": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink.monitor",
+  "description": "Monitor of USB Audio Front Headphones",
+  "driver": "PipeWire",
+  "sample_specification": "s32le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 65536,
+   "value_percent": "100%",
+   "db": "0.00 dB"
+  },
+  "monitor_source": "alsa_output.usb-Generic_USB_Audio-00.HiFi__Headphones__sink",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "[Out] Headphones"
+ },
+ {
+  "index": 69,
+  "state": "SUSPENDED",
+  "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Line__source",
+  "description": "USB Audio Line Input",
+  "driver": "PipeWire",
+  "sample_specification": "s24le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 65536,
+   "value_percent": "100%",
+   "db": "0.00 dB"
+  },
+  "monitor_source": "",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "[In] Line"
+ },
+ {
+  "index": 70,
+  "state": "SUSPENDED",
+  "name": "alsa_input.usb-Generic_USB_Audio-00.HiFi__Mic__source",
+  "description": "USB Audio Microphone",
+  "driver": "PipeWire",
+  "sample_specification": "s24le 2ch 48000Hz",
+  "channel_map": "front-left,front-right",
+  "owner_module": 4294967295,
+  "mute": false,
+  "volume": {
+   "front-left": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   },
+   "front-right": {
+    "value": 65536,
+    "value_percent": "100%",
+    "db": "0.00 dB"
+   }
+  },
+  "balance": 0.0,
+  "base_volume": {
+   "value": 65536,
+   "value_percent": "100%",
+   "db": "0.00 dB"
+  },
+  "monitor_source": "",
+  "latency": {
+   "actual": 0.0,
+   "configured": 0.0
+  },
+  "active_port": "[In] Mic"
+ }
+]

@@ -1,0 +1,20 @@
+[package]
+name = "pippipit"
+version = "0.1.0"
+edition = "2024"
+description = "A desktop status TUI for Hyprland: clock, workspaces, volume, media, temperatures and network in a terminal pane"
+license = "MIT"
+keywords = ["hyprland", "tui", "status", "wayland", "ratatui"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+anyhow = "1"
+calloop = { version = "0.14", features = ["signals"] }
+chrono = "0.4"
+crossterm = "0.29"
+libc = "0.2.189"
+ratatui = "0.30"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "1"
+unicode-width = "0.2"

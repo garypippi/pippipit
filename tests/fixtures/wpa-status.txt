@@ -1,0 +1,13 @@
+bssid=00:11:22:33:44:55
+freq=5180
+ssid=MyNetwork-5G
+id=0
+mode=station
+wifi_generation=5
+pairwise_cipher=CCMP
+group_cipher=CCMP
+key_mgmt=WPA2-PSK
+wpa_state=COMPLETED
+ip_address=192.168.1.10
+address=00:11:22:33:44:55
+ieee80211ac=1
