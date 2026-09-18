@@ -326,6 +326,22 @@ struct RawClient {
     size: [i32; 2],
     #[serde(default)]
     monitor: i64,
+    /// Never given to another window, unlike the address: that is a pointer, and a window
+    /// opened just after another closed often lands on the one it left.
+    #[serde(default, rename = "stableId")]
+    stable_id: String,
+}
+
+impl RawClient {
+    /// What tells this window apart from every other, the address where Hyprland is too
+    /// old to give a stable id.
+    fn identity(&self) -> &str {
+        if self.stable_id.is_empty() {
+            &self.address
+        } else {
+            &self.stable_id
+        }
+    }
 }
 
 #[derive(Deserialize)]
@@ -378,10 +394,11 @@ pub fn cell_origin(
     ))
 }
 
-/// The image window to move and where it goes: `(address, x, y)`.
+/// The image window to move and where it goes: `(address, identity, x, y)`.
 ///
-/// The image window is one of the layer's own (`pid`) other than the one moved last:
-/// Überzug++ opens a new window for every image and closes the old one a moment later.
+/// The image window is one of the layer's own (`pid`) other than the one moved last,
+/// told apart by `identity`: Überzug++ opens a new window for every image and closes the
+/// old one a moment later.
 fn window_target(
     clients_json: &str,
     monitors_json: &str,
@@ -390,11 +407,11 @@ fn window_target(
     moved: Option<&str>,
     grid: Grid,
     placement: &Placement,
-) -> Option<(String, i32, i32)> {
+) -> Option<(String, String, i32, i32)> {
     let clients: Vec<RawClient> = serde_json::from_str(clients_json).ok()?;
     let image = clients
         .iter()
-        .find(|client| client.pid == i64::from(pid) && Some(client.address.as_str()) != moved)?;
+        .find(|client| client.pid == i64::from(pid) && Some(client.identity()) != moved)?;
     let terminal = clients
         .iter()
         .find(|client| normalise(&client.address) == own)?;
@@ -407,7 +424,7 @@ fn window_target(
         placement.x,
         placement.y,
     )?;
-    Some((image.address.clone(), x, y))
+    Some((image.address.clone(), image.identity().to_string(), x, y))
 }
 
 /// The scale of the monitor pippipit's own window is on.
@@ -588,7 +605,7 @@ struct Art {
     /// The last URL looked up and where it led, so a placement that only moved does not
     /// download the cover again.
     resolved: Option<(String, Option<PathBuf>)>,
-    /// The address of the image window moved last, so the next image's window is not
+    /// The identity of the image window moved last, so the next image's window is not
     /// mistaken for the one it replaces.
     moved: Option<String>,
 }
@@ -716,7 +733,7 @@ impl Art {
                         placement,
                     )
                 });
-            if let Some((address, x, y)) = target {
+            if let Some((address, identity, x, y)) = target {
                 let command = dispatch_command(&self.config.move_window, &address, x, y);
                 let _ = hyprland::request(&command, timeout);
                 // Only after the move, so a window opened transparent is never seen
@@ -725,7 +742,7 @@ impl Art {
                     let command = dispatch_command(&self.config.show, &address, x, y);
                     let _ = hyprland::request(&command, timeout);
                 }
-                self.moved = Some(address);
+                self.moved = Some(identity);
                 return;
             }
             if Instant::now() >= deadline || !stop.sleep(WINDOW_POLL) {
@@ -1078,13 +1095,38 @@ mod tests {
                 grid,
                 &placement
             ),
-            Some(("0xnew".into(), 1184, 1634))
+            Some(("0xnew".into(), "0xnew".into(), 1184, 1634))
         );
         assert_eq!(
             window_target(clients, monitors, "aaa", 43, None, grid, &placement),
             None,
             "no window of the layer's yet"
         );
+    }
+
+    /// An image removed and then added again gets a window at the address the old one
+    /// left. The stable id still tells them apart.
+    #[test]
+    fn a_reused_address_is_still_a_new_window() {
+        let clients = r#"[
+            {"address":"0xaaa","pid":10,"at":[1156,1448],"size":[1140,318],"monitor":2,"stableId":"18000004"},
+            {"address":"0xbbb","pid":42,"at":[1120,1738],"size":[65,65],"monitor":2,"stableId":"1800004c"}
+        ]"#;
+        let monitors = r#"[{"id":2,"scale":1.0}]"#;
+        let grid = Grid {
+            columns: 100,
+            rows: 10,
+            width_px: 1000,
+            height_px: 300,
+        };
+        let placement = placement("u", 0);
+        let target = |moved| window_target(clients, monitors, "aaa", 42, moved, grid, &placement);
+        assert_eq!(
+            target(Some("1800004b")).map(|(address, identity, ..)| (address, identity)),
+            Some(("0xbbb".into(), "1800004c".into())),
+            "same address as the window moved last, but a new stable id"
+        );
+        assert_eq!(target(Some("1800004c")), None, "the window moved last");
     }
 
     /// At a scale of 5/3 the image is handed over at 2 and comes out 5/6 the size, so a
