@@ -182,6 +182,8 @@ pub struct MediaStore {
     pub error: Option<String>,
     /// When `latest` arrived, used to interpolate the position during playback.
     at: Instant,
+    /// The last track that came with art, and that art.
+    last_art: Option<(Media, String)>,
 }
 
 impl Default for MediaStore {
@@ -190,14 +192,36 @@ impl Default for MediaStore {
             latest: None,
             error: None,
             at: Instant::now(),
+            last_art: None,
         }
     }
+}
+
+/// Whether two readings are the same track, whatever the position, status or art.
+fn same_track(a: &Media, b: &Media) -> bool {
+    a.player == b.player
+        && a.title == b.title
+        && a.artist == b.artist
+        && a.album == b.album
+        && a.length_us == b.length_us
 }
 
 impl MediaStore {
     pub fn apply(&mut self, sample: MediaSample) -> bool {
         match sample {
-            MediaSample::State(media) => {
+            MediaSample::State(mut media) => {
+                // Firefox drops the art of a track it comes back to from another tab's
+                // media, though the track is the same. The art it last gave for that
+                // track stands in, or the frame would stay empty until the next track.
+                if let Some(media) = media.as_mut() {
+                    if !media.art_url.is_empty() {
+                        self.last_art = Some((media.clone(), media.art_url.clone()));
+                    } else if let Some((track, url)) = &self.last_art
+                        && same_track(track, media)
+                    {
+                        media.art_url = url.clone();
+                    }
+                }
                 let changed = self.latest != media;
                 self.latest = media;
                 self.at = Instant::now();
@@ -247,4 +271,54 @@ pub struct UiState {
     pub show_help: bool,
     /// The rect-to-action table built by the most recent draw.
     pub hits: HitMap,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn track(title: &str, art_url: &str) -> Option<Media> {
+        Some(Media {
+            player: "firefox".into(),
+            status: Status::Playing,
+            position_us: 0,
+            length_us: 247_000_000,
+            art_url: art_url.into(),
+            title: title.into(),
+            artist: "Sample Artist".into(),
+            album: "Sample Album".into(),
+        })
+    }
+
+    fn art(store: &MediaStore) -> &str {
+        store
+            .latest
+            .as_ref()
+            .map_or("", |media| media.art_url.as_str())
+    }
+
+    /// A track that comes back without its art gets the art it last had, even with
+    /// other media that had none in between.
+    #[test]
+    fn a_track_that_comes_back_without_art_keeps_the_art_it_had() {
+        let mut store = MediaStore::default();
+        store.apply(MediaSample::State(track("One", "file:///tmp/one.png")));
+        store.apply(MediaSample::State(track("A video", "")));
+        assert_eq!(art(&store), "");
+
+        store.apply(MediaSample::State(track("One", "")));
+        assert_eq!(art(&store), "file:///tmp/one.png");
+    }
+
+    /// Only the same track borrows art, and art the player gives always wins.
+    #[test]
+    fn another_track_never_borrows_art() {
+        let mut store = MediaStore::default();
+        store.apply(MediaSample::State(track("One", "file:///tmp/one.png")));
+        store.apply(MediaSample::State(track("Two", "")));
+        assert_eq!(art(&store), "");
+
+        store.apply(MediaSample::State(track("One", "file:///tmp/new.png")));
+        assert_eq!(art(&store), "file:///tmp/new.png");
+    }
 }

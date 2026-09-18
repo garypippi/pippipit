@@ -774,14 +774,20 @@ impl Art {
 
     /// The local file behind a URL: downloaded if it is remote, and taken out of the song
     /// cmus is playing for cmus's stand-in.
+    ///
+    /// A local file is looked at every time rather than remembered: the player may have
+    /// deleted it since, and a path that is gone shows nothing but the placeholder.
     fn path_for(&mut self, url: &str, runner: &dyn CommandRunner) -> Option<PathBuf> {
+        let found = source(url);
+        if let Some(Source::File(path)) = found {
+            return path.is_file().then_some(path);
+        }
         if let Some((looked_up, path)) = &self.resolved
             && looked_up == url
         {
             return path.clone();
         }
-        let path = match source(url) {
-            Some(Source::File(path)) => Some(path),
+        let path = match found {
             Some(Source::Remote(url)) => {
                 cache_dir().and_then(|dir| fetch(&url, &dir, &self.commands.curl, runner).ok())
             }
@@ -792,7 +798,7 @@ impl Art {
                 .and_then(cmus_file)
                 .zip(cache_dir())
                 .and_then(|(song, dir)| local_cover(&song, &dir, &self.commands.ffmpeg, runner)),
-            None => None,
+            Some(Source::File(_)) | None => None,
         };
         self.resolved = Some((url.to_string(), path.clone()));
         path
@@ -1264,12 +1270,16 @@ mod tests {
             },
         );
         let runner = SystemRunner::new(Duration::from_secs(1), Shutdown::new());
+        let root = scratch("changes");
+        let cover = root.join("cover.png");
+        std::fs::write(&cover, b"png").unwrap();
+        let url = format!("file://{}", cover.display());
 
-        art.take(ArtCommand::Show(placement("file:///tmp/cover.png", 2)));
+        art.take(ArtCommand::Show(placement(&url, 2)));
         art.reconcile(&runner, &Shutdown::new());
-        art.take(ArtCommand::Show(placement("file:///tmp/cover.png", 2)));
+        art.take(ArtCommand::Show(placement(&url, 2)));
         art.reconcile(&runner, &Shutdown::new());
-        art.take(ArtCommand::Show(placement("file:///tmp/cover.png", 4)));
+        art.take(ArtCommand::Show(placement(&url, 4)));
         art.reconcile(&runner, &Shutdown::new());
         art.take(ArtCommand::Hide);
         art.reconcile(&runner, &Shutdown::new());
@@ -1278,10 +1288,28 @@ mod tests {
 
         let lines = lines_once_settled(&out, 3);
         drop(art);
+        let _ = std::fs::remove_dir_all(&root);
         assert_eq!(lines.len(), 3, "{lines:?}");
         assert!(lines[0].contains(r#""x":2"#), "{}", lines[0]);
         assert!(lines[1].contains(r#""x":4"#), "{}", lines[1]);
         assert!(lines[2].contains(r#""remove""#), "{}", lines[2]);
+    }
+
+    /// A local cover is looked for every time: one the player has deleted since is gone,
+    /// even under a URL that led to it before.
+    #[test]
+    fn a_deleted_local_cover_is_not_shown() {
+        let root = scratch("deleted-cover");
+        let cover = root.join("cover.png");
+        std::fs::write(&cover, b"png").unwrap();
+        let url = format!("file://{}", cover.display());
+        let mut art = Art::new(ArtConfig::default(), CommandsConfig::default());
+        let runner = SystemRunner::new(Duration::from_secs(1), Shutdown::new());
+
+        assert_eq!(art.path_for(&url, &runner), Some(cover.clone()));
+        std::fs::remove_file(&cover).unwrap();
+        assert_eq!(art.path_for(&url, &runner), None);
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     /// Without an address that is its own, the Wayland output never starts a layer: it
