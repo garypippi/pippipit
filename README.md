@@ -15,6 +15,7 @@ pippipit [OPTIONS]
 | key | |
 |---|---|
 | `r` | refresh everything |
+| `p` | hide the SSID and the address, for a screenshot |
 | `?` | help |
 | `q` | quit |
 

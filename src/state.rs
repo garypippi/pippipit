@@ -572,9 +572,10 @@ mod tests {
         assert_eq!(s.ui.pending_power, None);
     }
 
-    /// Normally there are only three keys; volume and workspace keys do not exist here.
+    /// Outside the modal there are only four keys; volume and workspace keys do not
+    /// exist here.
     #[test]
-    fn only_three_keys_are_owned() {
+    fn only_four_keys_are_owned() {
         let mut s = state();
         for code in [
             KeyCode::Char('1'),
@@ -585,12 +586,12 @@ mod tests {
             KeyCode::Char(' '),
             KeyCode::Char('s'),
             KeyCode::Char('z'),
-            KeyCode::Char('p'),
         ] {
             s.on_key(key(code));
             assert!(s.running, "{code:?} must not quit");
             assert_eq!(s.ui.pending_power, None, "{code:?} must not touch power");
             assert!(!s.ui.show_help, "{code:?} must not open help");
+            assert!(!s.network.redact, "{code:?} must not redact");
         }
         s.on_key(key(KeyCode::Char('?')));
         assert!(s.ui.show_help);

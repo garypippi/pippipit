@@ -44,7 +44,7 @@ cargo fmt
 - Stop a running panel with `pkill -x pippipit`, never `pkill -f` (it matches
   the calling shell too).
 - Commit messages are one line, present tense, saying what the change is for.
-- pippipit owns the keys `r`, `?` and `q`; everything else is the mouse.
+- pippipit owns the keys `r`, `p`, `?` and `q`; everything else is the mouse.
 - `README.md` covers usage and configuration, `config.example.toml` lists every
   setting with its default, and both are kept true. There are no design
   documents.

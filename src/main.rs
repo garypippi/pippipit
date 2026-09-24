@@ -57,6 +57,7 @@ OPTIONS:
 
 KEYS:
     r   refresh all sources
+    p   hide the SSID and the address, for a screenshot
     ?   help overlay
     q   quit
 

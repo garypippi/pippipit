@@ -1,4 +1,4 @@
-//! The help overlay, which is the only place the three keys are written down.
+//! The help overlay, listing the four keys pippipit owns.
 
 use ratatui::Frame;
 use ratatui::layout::Rect;
